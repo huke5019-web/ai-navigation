@@ -59,6 +59,23 @@ describe("sponsor ads", () => {
     expect(screen.getByText("Sponsor AI Navigation")).toBeInTheDocument();
     expect(screen.getByText("Reach AI tool users, developers and creators.")).toBeInTheDocument();
   });
+
+  test("other categories can read their own configured sponsor copy", () => {
+    const { rerender } = render(
+      <AdSlot kind="banner" position="categoryBanner" category="chat" ads={[]} />,
+    );
+
+    expect(screen.getByText("Reach AI Chat Tool Buyers")).toBeInTheDocument();
+    expect(
+      screen.getByText("Promote your AI chatbot, assistant, or search product to active AI users."),
+    ).toBeInTheDocument();
+
+    rerender(<AdSlot kind="sidebar" position="sidebar" category="image" ads={[]} />);
+    expect(screen.getByText("Promote Your Image Tool")).toBeInTheDocument();
+    expect(
+      screen.getByText("Reach designers, creators, and marketers exploring AI image workflows."),
+    ).toBeInTheDocument();
+  });
 });
 
 describe("advertise page", () => {
