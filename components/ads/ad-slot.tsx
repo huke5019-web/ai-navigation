@@ -18,7 +18,7 @@ const placeholderCopy: Record<AdSlotKind, { title: string; body: string }> = {
     body: "A clean sidebar unit for partner promotions, SaaS offers, and marketplace deals.",
   },
   inFeed: {
-    title: "Partner recommendation",
+    title: "Sponsored recommendation",
     body: "This in-feed slot is ready for AdSense or a native sponsored recommendation.",
   },
   footer: {

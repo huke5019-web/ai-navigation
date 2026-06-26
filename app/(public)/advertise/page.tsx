@@ -12,19 +12,27 @@ export async function generateMetadata() {
 export default function AdvertisePage() {
   return (
     <ContentPage
-      title="Advertise"
-      intro="AI Navigation supports banner placements, sidebar sponsorships, in-feed recommendations, and affiliate partnerships."
+      title="Advertise on AI Navigation"
+      intro="Buy homepage advertising, tool list sponsored recommendations, and AI tool spotlight placements for a relevant audience actively comparing products."
       breadcrumbs={[{ label: "Home", href: "/" }, { label: "Advertise" }]}
     >
       <ul>
-        <li>Top banner placement for broad awareness</li>
-        <li>Sidebar sponsorship for evergreen visibility</li>
-        <li>In-feed sponsored recommendations inside tool lists</li>
-        <li>Article placements for relevant buying guides</li>
+        <li>Homepage banner advertising for broad awareness</li>
+        <li>Tool list recommendation slots placed inside category and search results</li>
+        <li>AI tool spotlight placements for partner products and launches</li>
       </ul>
       <p>
-        All paid placements are labeled as Sponsored or Partner Recommendation. No forced clicks,
-        deceptive placements, or invalid traffic tactics are supported.
+        Every paid placement is clearly labeled as Sponsored. We keep the browsing experience
+        clean and do not support deceptive layouts, forced clicks, or invalid traffic tactics.
+      </p>
+      <p>
+        Want pricing, placement details, or a custom package? We can share options for homepage
+        exposure, in-feed placement, and long-term directory visibility.
+      </p>
+      <p>
+        <a className="primary-button inline-button" href="mailto:ads@example.com">
+          Contact Us
+        </a>
       </p>
     </ContentPage>
   );

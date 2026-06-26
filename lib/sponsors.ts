@@ -1,4 +1,4 @@
-import sponsors from "@/data/sponsors.json";
+import { sponsors } from "@/data/sponsors";
 
 export type SponsorPosition =
   | "home-banner"
@@ -12,15 +12,16 @@ export type Sponsor = {
   id: string;
   title: string;
   description: string;
-  image: string;
+  image?: string;
   link: string;
   position: SponsorPosition;
+  label?: string;
   startDate?: string;
   endDate?: string;
   isActive: boolean;
 };
 
-const sponsorsData = sponsors as Sponsor[];
+const sponsorsData = sponsors as readonly Sponsor[];
 
 function isSponsorActive(sponsor: Sponsor, now = new Date()) {
   if (!sponsor.isActive) {
