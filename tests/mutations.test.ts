@@ -174,7 +174,7 @@ describe("category mutations", () => {
     await prisma.tool.create({ data: toolData });
 
     await expect(mutations.deleteCategory(category.id)).rejects.toThrow(
-      "请先转移或删除该分类下的工具",
+      "Please move or delete tools in this category first.",
     );
     await expect(prisma.category.findUnique({ where: { id: category.id } })).resolves.toBeTruthy();
   });

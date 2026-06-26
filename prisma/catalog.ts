@@ -23,12 +23,18 @@ export type CatalogTool = {
   summary: string;
   description: string;
   websiteUrl: `https://${string}`;
+  officialUrl?: `https://${string}`;
+  affiliateUrl?: `https://${string}`;
+  isSponsored?: boolean;
+  sponsorLabel?: string;
+  couponCode?: string;
+  pricing?: string;
   sortOrder: number;
   isFeatured: boolean;
   tagSlugs: readonly string[];
 };
 
-export const catalogTools = [
+const catalogToolsBase = [
   {
     categorySlug: "chat",
     name: "ChatGPT",
@@ -550,6 +556,45 @@ export const catalogTools = [
     tagSlugs: ["coding"],
   },
 ] as const satisfies readonly CatalogTool[];
+
+const monetizationBySlug: Partial<
+  Record<
+    CatalogTool["slug"],
+    Pick<
+      CatalogTool,
+      "affiliateUrl" | "couponCode" | "isSponsored" | "pricing" | "sponsorLabel"
+    >
+  >
+> = {
+  chatgpt: {
+    pricing: "Free plan + paid tiers",
+  },
+  claude: {
+    pricing: "Free plan + Pro",
+  },
+  canva: {
+    pricing: "Free plan + Pro",
+  },
+  "github-copilot": {
+    pricing: "Free tier + paid plans",
+  },
+  cursor: {
+    pricing: "Free tier + Pro",
+  },
+  v0: {
+    pricing: "Usage-based credits",
+  },
+};
+
+export const catalogTools = catalogToolsBase.map((tool: CatalogTool) => ({
+  ...tool,
+  officialUrl: tool.officialUrl ?? tool.websiteUrl,
+  affiliateUrl: monetizationBySlug[tool.slug]?.affiliateUrl,
+  isSponsored: monetizationBySlug[tool.slug]?.isSponsored ?? false,
+  sponsorLabel: monetizationBySlug[tool.slug]?.sponsorLabel,
+  couponCode: monetizationBySlug[tool.slug]?.couponCode,
+  pricing: monetizationBySlug[tool.slug]?.pricing,
+})) satisfies readonly CatalogTool[];
 
 export const defaultAdvertisements = [
   {

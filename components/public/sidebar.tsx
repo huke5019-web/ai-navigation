@@ -1,12 +1,36 @@
 import Link from "next/link";
 import type { Category, SiteSetting } from "@prisma/client";
-import { CategoryNav } from "./category-nav";
 
-export function Sidebar({ setting, categories, selected, query }: { setting: SiteSetting | null; categories: Category[]; selected?: string; query?: string }) {
-  return <aside className="desktop-sidebar">
-    <Link className="brand" href="/"><span>AI</span>{setting?.siteName ?? "AI 导航"}</Link>
-    <p className="sidebar-kicker">探索人工智能</p>
-    <CategoryNav categories={categories} selected={selected} query={query} />
-    <Link className="admin-link" href="/admin">管理后台</Link>
-  </aside>;
+import { CategoryNav } from "@/components/public/category-nav";
+
+export function Sidebar({
+  setting,
+  categories,
+  selected,
+  query,
+}: {
+  setting: SiteSetting | null;
+  categories: Category[];
+  selected?: string;
+  query?: string;
+}) {
+  return (
+    <aside className="desktop-sidebar">
+      <Link className="brand" href="/">
+        <span>AI</span>
+        {setting?.siteName ?? "AI Navigation"}
+      </Link>
+      <p className="sidebar-kicker">Curated tools for work and creativity</p>
+      <CategoryNav categories={categories} selected={selected} query={query} />
+      <div className="sidebar-links">
+        <Link href="/blog">Blog</Link>
+        <Link href="/about">About</Link>
+        <Link href="/advertise">Advertise</Link>
+        <Link href="/submit-tool">Submit Tool</Link>
+      </div>
+      <Link className="admin-link" href="/admin">
+        Admin
+      </Link>
+    </aside>
+  );
 }

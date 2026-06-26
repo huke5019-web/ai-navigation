@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 import { visibleAdWhere } from "@/lib/ads";
 import { hasDatabaseUrl, prisma } from "@/lib/prisma";
@@ -43,11 +43,11 @@ const fallbackTags = catalogTags.map((tag, index) => ({
   slug: tag.slug,
 }));
 
-const fallbackCategoriesBySlug = new Map(
+const fallbackCategoriesBySlug = new Map<string, (typeof fallbackCategories)[number]>(
   fallbackCategories.map((category) => [category.slug, category] as const),
 );
 
-const fallbackTagsBySlug = new Map(
+const fallbackTagsBySlug = new Map<string, (typeof fallbackTags)[number]>(
   fallbackTags.map((tag) => [tag.slug, tag] as const),
 );
 
@@ -68,6 +68,12 @@ const fallbackTools: PublicTool[] = catalogTools.map((tool, index) => {
     summary: tool.summary,
     description: tool.description,
     websiteUrl: tool.websiteUrl,
+    officialUrl: tool.officialUrl ?? tool.websiteUrl,
+    affiliateUrl: tool.affiliateUrl ?? null,
+    isSponsored: tool.isSponsored ?? false,
+    sponsorLabel: tool.sponsorLabel ?? null,
+    couponCode: tool.couponCode ?? null,
+    pricing: tool.pricing ?? null,
     sortOrder: tool.sortOrder,
     isActive: true,
     isFeatured: tool.isFeatured,
@@ -110,12 +116,26 @@ function listFallbackTools() {
   );
 }
 
+function shouldUseFallback(error: unknown) {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    (error.code === "P2022" || error.code === "P2021")
+  );
+}
+
 export async function getSiteSetting() {
   if (!hasDatabaseUrl()) {
     return fallbackSiteSetting;
   }
 
-  return prisma.siteSetting.findUnique({ where: { id: 1 } });
+  try {
+    return await prisma.siteSetting.findUnique({ where: { id: 1 } });
+  } catch (error) {
+    if (shouldUseFallback(error)) {
+      return fallbackSiteSetting;
+    }
+    throw error;
+  }
 }
 
 export async function getActiveCategories() {
@@ -123,10 +143,34 @@ export async function getActiveCategories() {
     return [...fallbackCategories];
   }
 
-  return prisma.category.findMany({
-    where: { isActive: true },
-    orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
-  });
+  try {
+    return await prisma.category.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+    });
+  } catch (error) {
+    if (shouldUseFallback(error)) {
+      return [...fallbackCategories];
+    }
+    throw error;
+  }
+}
+
+export async function getCategoryBySlug(slug: string) {
+  if (!hasDatabaseUrl()) {
+    return fallbackCategories.find((category) => category.slug === slug) ?? null;
+  }
+
+  try {
+    return await prisma.category.findFirst({
+      where: { slug, isActive: true },
+    });
+  } catch (error) {
+    if (shouldUseFallback(error)) {
+      return fallbackCategories.find((category) => category.slug === slug) ?? null;
+    }
+    throw error;
+  }
 }
 
 export async function getTools({
@@ -144,25 +188,35 @@ export async function getTools({
   }
 
   const keyword = query?.trim();
-  return prisma.tool.findMany({
-    where: {
-      ...publicToolWhere,
-      ...(category
-        ? { category: { slug: category, isActive: true } }
-        : {}),
-      ...(keyword
-        ? {
-            OR: [
-              { name: { contains: keyword } },
-              { summary: { contains: keyword } },
-              { tags: { some: { tag: { name: { contains: keyword } } } } },
-            ],
-          }
-        : {}),
-    },
-    include: toolRelations,
-    orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
-  });
+  try {
+    return await prisma.tool.findMany({
+      where: {
+        ...publicToolWhere,
+        ...(category
+          ? { category: { slug: category, isActive: true } }
+          : {}),
+        ...(keyword
+          ? {
+              OR: [
+                { name: { contains: keyword } },
+                { summary: { contains: keyword } },
+                { tags: { some: { tag: { name: { contains: keyword } } } } },
+              ],
+            }
+          : {}),
+      },
+      include: toolRelations,
+      orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+    });
+  } catch (error) {
+    if (shouldUseFallback(error)) {
+      return listFallbackTools().filter(
+        (tool) =>
+          (!category || tool.category.slug === category) && matchesKeyword(tool, query),
+      );
+    }
+    throw error;
+  }
 }
 
 export async function getFeaturedTools() {
@@ -170,11 +224,18 @@ export async function getFeaturedTools() {
     return listFallbackTools().filter((tool) => tool.isFeatured);
   }
 
-  return prisma.tool.findMany({
-    where: { ...publicToolWhere, isFeatured: true },
-    include: toolRelations,
-    orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
-  });
+  try {
+    return await prisma.tool.findMany({
+      where: { ...publicToolWhere, isFeatured: true },
+      include: toolRelations,
+      orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+    });
+  } catch (error) {
+    if (shouldUseFallback(error)) {
+      return listFallbackTools().filter((tool) => tool.isFeatured);
+    }
+    throw error;
+  }
 }
 
 export async function getToolBySlug(slug: string) {
@@ -182,10 +243,17 @@ export async function getToolBySlug(slug: string) {
     return fallbackTools.find((tool) => tool.slug === slug) ?? null;
   }
 
-  return prisma.tool.findFirst({
-    where: { ...publicToolWhere, slug },
-    include: toolRelations,
-  });
+  try {
+    return await prisma.tool.findFirst({
+      where: { ...publicToolWhere, slug },
+      include: toolRelations,
+    });
+  } catch (error) {
+    if (shouldUseFallback(error)) {
+      return fallbackTools.find((tool) => tool.slug === slug) ?? null;
+    }
+    throw error;
+  }
 }
 
 export async function getRelatedTools(
@@ -198,16 +266,25 @@ export async function getRelatedTools(
       .slice(0, 6);
   }
 
-  return prisma.tool.findMany({
-    where: {
-      ...publicToolWhere,
-      categoryId,
-      id: { not: excludedToolId },
-    },
-    include: toolRelations,
-    orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
-    take: 6,
-  });
+  try {
+    return await prisma.tool.findMany({
+      where: {
+        ...publicToolWhere,
+        categoryId,
+        id: { not: excludedToolId },
+      },
+      include: toolRelations,
+      orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+      take: 6,
+    });
+  } catch (error) {
+    if (shouldUseFallback(error)) {
+      return listFallbackTools()
+        .filter((tool) => tool.categoryId === categoryId && tool.id !== excludedToolId)
+        .slice(0, 6);
+    }
+    throw error;
+  }
 }
 
 export async function getSitemapTools() {
@@ -215,11 +292,37 @@ export async function getSitemapTools() {
     return listFallbackTools().map(({ slug, updatedAt }) => ({ slug, updatedAt }));
   }
 
-  return prisma.tool.findMany({
-    where: publicToolWhere,
-    orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
-    select: { slug: true, updatedAt: true },
-  });
+  try {
+    return await prisma.tool.findMany({
+      where: publicToolWhere,
+      orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+      select: { slug: true, updatedAt: true },
+    });
+  } catch (error) {
+    if (shouldUseFallback(error)) {
+      return listFallbackTools().map(({ slug, updatedAt }) => ({ slug, updatedAt }));
+    }
+    throw error;
+  }
+}
+
+export async function getSitemapCategories() {
+  if (!hasDatabaseUrl()) {
+    return fallbackCategories.map(({ slug, updatedAt }) => ({ slug, updatedAt }));
+  }
+
+  try {
+    return await prisma.category.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+      select: { slug: true, updatedAt: true },
+    });
+  } catch (error) {
+    if (shouldUseFallback(error)) {
+      return fallbackCategories.map(({ slug, updatedAt }) => ({ slug, updatedAt }));
+    }
+    throw error;
+  }
 }
 
 export async function getDashboardStats(now = new Date()) {
@@ -232,15 +335,27 @@ export async function getDashboardStats(now = new Date()) {
     };
   }
 
-  const [totalTools, activeCategories, visibleAds, featuredTools] =
-    await prisma.$transaction([
-      prisma.tool.count(),
-      prisma.category.count({ where: { isActive: true } }),
-      prisma.advertisement.count({ where: visibleAdWhere(now) }),
-      prisma.tool.count({
-        where: { ...publicToolWhere, isFeatured: true },
-      }),
-    ]);
+  try {
+    const [totalTools, activeCategories, visibleAds, featuredTools] =
+      await prisma.$transaction([
+        prisma.tool.count(),
+        prisma.category.count({ where: { isActive: true } }),
+        prisma.advertisement.count({ where: visibleAdWhere(now) }),
+        prisma.tool.count({
+          where: { ...publicToolWhere, isFeatured: true },
+        }),
+      ]);
 
-  return { totalTools, activeCategories, visibleAds, featuredTools };
+    return { totalTools, activeCategories, visibleAds, featuredTools };
+  } catch (error) {
+    if (shouldUseFallback(error)) {
+      return {
+        totalTools: fallbackTools.length,
+        activeCategories: fallbackCategories.length,
+        visibleAds: fallbackVisibleAdvertisementCount,
+        featuredTools: fallbackTools.filter((tool) => tool.isFeatured).length,
+      };
+    }
+    throw error;
+  }
 }

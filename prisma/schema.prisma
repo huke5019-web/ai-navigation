@@ -37,6 +37,12 @@ model Tool {
   summary     String
   description String
   websiteUrl  String
+  officialUrl String?
+  affiliateUrl String?
+  isSponsored Boolean   @default(false)
+  sponsorLabel String?
+  couponCode  String?
+  pricing     String?
   sortOrder   Int       @default(0)
   isActive    Boolean   @default(true)
   isFeatured  Boolean   @default(false)

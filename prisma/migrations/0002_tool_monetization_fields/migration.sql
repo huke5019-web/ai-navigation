@@ -1,0 +1,6 @@
+ALTER TABLE "Tool" ADD COLUMN "officialUrl" TEXT;
+ALTER TABLE "Tool" ADD COLUMN "affiliateUrl" TEXT;
+ALTER TABLE "Tool" ADD COLUMN "isSponsored" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "Tool" ADD COLUMN "sponsorLabel" TEXT;
+ALTER TABLE "Tool" ADD COLUMN "couponCode" TEXT;
+ALTER TABLE "Tool" ADD COLUMN "pricing" TEXT;

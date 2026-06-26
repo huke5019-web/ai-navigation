@@ -1,30 +1,65 @@
 import { getVisibleAds } from "@/lib/ads";
 import { getActiveCategories, getFeaturedTools, getSiteSetting, getTools } from "@/lib/queries";
-import { AdSlot } from "@/components/public/ad-slot";
-import { CategoryNav } from "@/components/public/category-nav";
-import { SearchForm } from "@/components/public/search-form";
-import { Sidebar } from "@/components/public/sidebar";
-import { ToolCard } from "@/components/public/tool-card";
+import { categorySeo, buildMetadata } from "@/lib/seo";
+import { JsonLd } from "@/components/seo/json-ld";
+import { ToolsDirectory } from "@/components/public/tools-directory";
+import { absoluteUrl, siteConfig } from "@/lib/site-config";
 
-export default async function HomePage({ searchParams }: { searchParams: Promise<{ q?: string; category?: string }> }) {
-  const { q, category } = await searchParams;
+export async function generateMetadata() {
+  const seo = categorySeo();
+  return buildMetadata({
+    title: seo.title,
+    description: seo.description,
+    path: "/",
+    keywords: ["AI tools", "AI directory", "best AI tools", "AI productivity"],
+  });
+}
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q } = await searchParams;
   const [setting, categories, featured, tools, banners, sidebarAds] = await Promise.all([
-    getSiteSetting(), getActiveCategories(), getFeaturedTools(), getTools({ query: q, category }),
-    getVisibleAds("HOME_BANNER"), getVisibleAds("HOME_SIDEBAR"),
+    getSiteSetting(),
+    getActiveCategories(),
+    getFeaturedTools(),
+    getTools({ query: q }),
+    getVisibleAds("HOME_BANNER"),
+    getVisibleAds("HOME_SIDEBAR"),
   ]);
-  return <div className="public-shell">
-    <Sidebar setting={setting} categories={categories} selected={category} query={q} />
-    <main className="main-content">
-      <header className="hero"><p>CURATED AI TOOLS</p><h1>{setting?.siteName ?? "AI 导航"}</h1><span>{setting?.siteDescription ?? "发现真正实用的 AI 工具"}</span></header>
-      <SearchForm query={q} category={category} />
-      <CategoryNav mobile categories={categories} selected={category} query={q} />
-      <AdSlot ads={banners} className="banner-ads" />
-      {!!featured.length && <section><div className="section-title"><h2>精选工具</h2><span>编辑推荐</span></div><div className="tool-grid">{featured.map((tool) => <ToolCard tool={tool} key={`featured-${tool.id}`} />)}</div></section>}
-      <section><div className="section-title"><h2>工具目录</h2><span>{tools.length} 个工具</span></div>
-        {tools.length ? <div className="tool-grid">{tools.map((tool) => <ToolCard tool={tool} key={tool.id} />)}</div> : <div className="empty-state" role="status">没有找到匹配的工具，请尝试其他关键词或分类。</div>}
-      </section>
-      <footer>{setting?.footerText ?? "AI 导航"}</footer>
-    </main>
-    <aside className="ad-rail"><div className="rail-title">合作推荐</div><AdSlot ads={sidebarAds} /></aside>
-  </div>;
+
+  return (
+    <>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          name: "AI Navigation directory",
+          itemListElement: tools.slice(0, 20).map((tool, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            url: absoluteUrl(`/tools/${tool.slug}`),
+            name: tool.name,
+          })),
+        }}
+      />
+      <ToolsDirectory
+        setting={setting}
+        categories={categories}
+        featured={featured}
+        tools={tools}
+        banners={banners}
+        sidebarAds={sidebarAds}
+        query={q}
+        heroLabel="BEST AI TOOLS"
+        heroTitle={setting?.siteName ?? siteConfig.name}
+        heroDescription={
+          setting?.siteDescription ??
+          "Browse practical AI tools for chat, writing, image generation, coding, and business workflows."
+        }
+      />
+    </>
+  );
 }

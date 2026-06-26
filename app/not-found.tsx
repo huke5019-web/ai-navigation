@@ -1,1 +1,14 @@
-import Link from"next/link";export default function NotFound(){return <main className="empty-page"><h1>页面未找到</h1><p>你访问的内容不存在或已下架。</p><Link href="/">返回首页</Link></main>}
+import Link from "next/link";
+
+export default function NotFound() {
+  return (
+    <main className="empty-page">
+      <h1>Page Not Found</h1>
+      <p>The page you requested is unavailable, moved, or not published yet.</p>
+      <div className="empty-page-actions">
+        <Link href="/">Go Home</Link>
+        <Link href="/blog">Browse Blog</Link>
+      </div>
+    </main>
+  );
+}
