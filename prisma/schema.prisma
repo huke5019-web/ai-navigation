@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum AdPlacement {
+  HOME_BANNER
+  HOME_SIDEBAR
+  TOOL_DETAIL
+}
+
+model Category {
+  id        Int      @id @default(autoincrement())
+  name      String
+  slug      String   @unique
+  icon      String   @default("Sparkles")
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  tools     Tool[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
+model Tool {
+  id          Int       @id @default(autoincrement())
+  categoryId  Int
+  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  name        String
+  slug        String    @unique
+  logoUrl     String?
+  summary     String
+  description String
+  websiteUrl  String
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  isFeatured  Boolean   @default(false)
+  tags        ToolTag[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([categoryId, isActive, sortOrder])
+  @@index([isFeatured, isActive])
+  @@index([isActive, sortOrder])
+}
+
+model Tag {
+  id    Int       @id @default(autoincrement())
+  name  String
+  slug  String    @unique
+  tools ToolTag[]
+}
+
+model ToolTag {
+  toolId Int
+  tagId  Int
+  tool   Tool @relation(fields: [toolId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([toolId, tagId])
+  @@index([tagId])
+}
+
+model Advertisement {
+  id         Int         @id @default(autoincrement())
+  title      String
+  imageUrl   String
+  targetUrl  String
+  placement  AdPlacement
+  startsAt   DateTime?
+  endsAt     DateTime?
+  isActive   Boolean     @default(true)
+  sortOrder  Int         @default(0)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@index([placement, isActive, sortOrder])
+  @@index([startsAt, endsAt])
+}
+
+model SiteSetting {
+  id              Int      @id
+  siteName        String
+  siteDescription String
+  logoUrl         String?
+  footerText      String
+  updatedAt       DateTime @updatedAt
+}
+
+model AdminSession {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}

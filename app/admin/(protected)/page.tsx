@@ -1,0 +1,1 @@
+import{getDashboardStats}from"@/lib/queries";export default async function Page(){const s=await getDashboardStats();return <><h1>仪表盘</h1><div className="admin-grid">{[["工具总数",s.totalTools],["启用分类",s.activeCategories],["有效广告",s.visibleAds],["精选工具",s.featuredTools]].map(([l,v])=><div className="stat" key={l}><span>{l}</span><strong>{v}</strong></div>)}</div></>}

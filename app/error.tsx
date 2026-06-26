@@ -1,0 +1,1 @@
+"use client";export default function ErrorPage({error,reset}:{error:Error;reset:()=>void}){console.error(error);return <main className="empty-page"><h1>页面暂时无法加载</h1><p>请稍后重试。</p><button onClick={reset}>重新加载</button></main>}

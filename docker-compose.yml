@@ -1,0 +1,17 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: file:/app/prisma/data/ai-navigation.db
+    volumes:
+      - ai_navigation_data:/app/prisma/data
+    restart: unless-stopped
+
+volumes:
+  ai_navigation_data:
