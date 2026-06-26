@@ -99,7 +99,7 @@ export default async function ToolDetailPage({
           </Link>
         </div>
       </article>
-      <AdSlot ads={ads} kind="footer" position="tool-detail" className="detail-ads" />
+      <AdSlot ads={ads} kind="footer" position="toolDetail" className="detail-ads" />
       {related.length ? (
         <section>
           <div className="section-title">

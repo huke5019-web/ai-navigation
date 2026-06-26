@@ -1,13 +1,15 @@
 import { sponsors } from "@/data/sponsors";
 
 export type SponsorPosition =
-  | "home-banner"
+  | "homeBanner"
   | "categoryBanner"
   | "sidebar"
-  | "in-feed"
-  | "tool-detail"
-  | "article-inline"
+  | "inFeed"
+  | "toolDetail"
+  | "articleInline"
   | "footer";
+
+export type SponsorType = "direct" | "affiliate" | "adsense";
 
 export type Sponsor = {
   id: string;
@@ -18,6 +20,7 @@ export type Sponsor = {
   position: SponsorPosition;
   category?: string;
   label?: string;
+  type: SponsorType;
   startDate?: string;
   endDate?: string;
   isActive: boolean;
@@ -49,7 +52,7 @@ export function getSponsors(
   );
 
   if (!category) {
-    return activeSponsors.filter((sponsor) => !sponsor.category);
+    return activeSponsors.filter((sponsor) => (sponsor.category ?? "all") === "all");
   }
 
   const matchingCategory = activeSponsors.filter((sponsor) => sponsor.category === category);
@@ -57,7 +60,7 @@ export function getSponsors(
     return matchingCategory;
   }
 
-  return activeSponsors.filter((sponsor) => !sponsor.category);
+  return activeSponsors.filter((sponsor) => (sponsor.category ?? "all") === "all");
 }
 
 export function getSponsor(

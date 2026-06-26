@@ -1,0 +1,9 @@
+<svg width="1200" height="320" viewBox="0 0 1200 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="320" rx="28" fill="#151B26"/>
+  <rect x="28" y="24" width="180" height="40" rx="20" fill="#242E44"/>
+  <text x="51" y="50" fill="#C7CDFF" font-family="Arial, sans-serif" font-size="18" font-weight="700">SPONSORED</text>
+  <text x="72" y="138" fill="#F4F7FB" font-family="Arial, sans-serif" font-size="52" font-weight="700">Featured AI Tool</text>
+  <text x="72" y="186" fill="#8B98AA" font-family="Arial, sans-serif" font-size="24">Highlight your product for users actively researching AI workflows.</text>
+  <rect x="72" y="224" width="192" height="52" rx="16" fill="#6D78FF"/>
+  <text x="111" y="258" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="22" font-weight="700">Learn More</text>
+</svg>

@@ -233,9 +233,25 @@ Fields:
 - `position`
 - `category`
 - `label`
+- `type`
 - `startDate`
 - `endDate`
 - `isActive`
+
+Common `position` values:
+
+- `homeBanner`
+- `categoryBanner`
+- `sidebar`
+- `inFeed`
+- `toolDetail`
+- `articleInline`
+
+Common `type` values:
+
+- `direct`
+- `affiliate`
+- `adsense`
 
 All sponsor links open in a new tab and use:
 

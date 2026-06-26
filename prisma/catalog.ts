@@ -601,7 +601,7 @@ export const defaultAdvertisements = [
     id: 1,
     title: "首页横幅广告位",
     imageUrl:
-      "/ads/category-banner.png",
+      "/ads/homepage-banner.svg",
     targetUrl: "/advertise",
     placement: AdPlacement.HOME_BANNER,
     sortOrder: 10,
@@ -609,7 +609,7 @@ export const defaultAdvertisements = [
   {
     id: 2,
     title: "首页侧栏广告位",
-    imageUrl: "/ads/sidebar-sponsor.png",
+    imageUrl: "/ads/advertise-sidebar.svg",
     targetUrl: "/advertise",
     placement: AdPlacement.HOME_SIDEBAR,
     sortOrder: 10,

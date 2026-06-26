@@ -56,17 +56,29 @@ function DbAdvertisementCard({ ad }: { ad: Advertisement }) {
   );
 }
 
-function PlaceholderAd({ kind }: { kind: AdSlotKind }) {
-  const copy = placeholderCopy[kind];
+function ConfiguredPlaceholderAd({
+  title,
+  body,
+  label = "Ad",
+}: {
+  title: string;
+  body: string;
+  label?: string;
+}) {
   return (
     <article className="ad-placeholder-card">
-      <span className="ad-disclosure">Advertising</span>
+      <span className="ad-disclosure">{label}</span>
       <div>
-        <h3>{copy.title}</h3>
-        <p>{copy.body}</p>
+        <h3>{title}</h3>
+        <p>{body}</p>
       </div>
     </article>
   );
+}
+
+function PlaceholderAd({ kind }: { kind: AdSlotKind }) {
+  const copy = placeholderCopy[kind];
+  return <ConfiguredPlaceholderAd title={copy.title} body={copy.body} label="Advertising" />;
 }
 
 export function AdSlot({
@@ -86,10 +98,25 @@ export function AdSlot({
 
   return (
     <div className={`ad-slot ad-slot-${kind} ${className}`.trim()}>
-      {ads.length
-        ? ads.map((ad) => <DbAdvertisementCard ad={ad} key={ad.id} />)
-        : sponsor
-          ? <SponsorAd sponsor={sponsor} />
+      {sponsor
+        ? sponsor.type === "adsense"
+          ? siteConfig.adsenseClient
+            ? (
+              <div className="adsense-card">
+                <span className="ad-disclosure">{sponsor.label?.trim() || "Ad"}</span>
+                <AdSenseSlot variant={kind} />
+              </div>
+            )
+            : (
+              <ConfiguredPlaceholderAd
+                title={sponsor.title}
+                body={sponsor.description}
+                label={sponsor.label?.trim() || "Ad"}
+              />
+            )
+          : <SponsorAd sponsor={sponsor} />
+        : ads.length
+          ? ads.map((ad) => <DbAdvertisementCard ad={ad} key={ad.id} />)
           : siteConfig.adsenseClient
             ? (
               <div className="adsense-card">

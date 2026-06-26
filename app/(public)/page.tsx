@@ -59,6 +59,9 @@ export default async function HomePage({
           setting?.siteDescription ??
           "Browse practical AI tools for chat, writing, image generation, coding, and business workflows."
         }
+        bannerPosition="homeBanner"
+        sidebarPosition="sidebar"
+        sponsorCategory="all"
       />
     </>
   );

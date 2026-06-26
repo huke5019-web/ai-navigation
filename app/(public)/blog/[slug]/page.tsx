@@ -112,7 +112,7 @@ export default async function BlogPostPage({
               </div>
             </section>
           ) : null}
-          <AdSlot kind="article" position="article-inline" className="article-ad-slot" />
+          <AdSlot kind="article" position="articleInline" className="article-ad-slot" />
           <div dangerouslySetInnerHTML={{ __html: post.html }} />
           <div className="article-disclaimer">
             Disclaimer: We may earn a commission from some partner links. Recommendations are

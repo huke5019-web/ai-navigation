@@ -23,7 +23,7 @@ function interleaveToolsWithAds(tools: PublicTool[]) {
         <AdSlot
           key={`in-feed-ad-${tool.id}`}
           kind="inFeed"
-          position="in-feed"
+          position="inFeed"
           className="tool-card tool-card-ad"
         />,
       );
@@ -46,7 +46,7 @@ export function ToolsDirectory({
   heroTitle,
   heroDescription,
   searchAction = "/",
-  bannerPosition = "home-banner",
+  bannerPosition = "homeBanner",
   sidebarPosition = "sidebar",
   sponsorCategory,
 }: {
