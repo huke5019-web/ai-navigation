@@ -14,13 +14,21 @@ export function Sidebar({
   selected?: string;
   query?: string;
 }) {
+  const siteName = setting?.siteName ?? "AI Navigation";
+
   return (
     <aside className="desktop-sidebar">
       <Link className="brand" href="/">
-        <span>AI</span>
-        {setting?.siteName ?? "AI Navigation"}
+        <span aria-hidden="true" className="brand-mark" translate="no">
+          AI
+        </span>
+        <span className="brand-copy">
+          <strong className="brand-title" translate="no">
+            {siteName}
+          </strong>
+          <span className="brand-subtitle">Curated tools for work and creativity</span>
+        </span>
       </Link>
-      <p className="sidebar-kicker">Curated tools for work and creativity</p>
       <CategoryNav categories={categories} selected={selected} query={query} />
       <div className="sidebar-links">
         <Link href="/blog">Blog</Link>

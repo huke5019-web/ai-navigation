@@ -31,6 +31,7 @@ vi.mock("next/navigation", () => ({ notFound: mocks.notFound }));
 import HomePage from "@/app/(public)/page";
 import ToolDetailPage from "@/app/(public)/tools/[slug]/page";
 import { AdSlot } from "@/components/public/ad-slot";
+import { Sidebar } from "@/components/public/sidebar";
 import { ToolCard } from "@/components/public/tool-card";
 
 const category = {
@@ -88,6 +89,27 @@ afterEach(() => {
 });
 
 describe("public components", () => {
+  test("sidebar brand keeps title and subtitle in dedicated wrappers", () => {
+    render(
+      <Sidebar
+        setting={{
+          id: 1,
+          siteName: "AI 导航",
+          siteDescription: "发现值得使用的 AI 工具",
+          logoUrl: null,
+          footerText: "AI 导航",
+          updatedAt: new Date(),
+        }}
+        categories={[]}
+      />,
+    );
+
+    expect(screen.getByText("AI 导航")).toHaveClass("brand-title");
+    expect(screen.getByText("Curated tools for work and creativity")).toHaveClass(
+      "brand-subtitle",
+    );
+  });
+
   test("tool card exposes detail and external links", () => {
     render(<ToolCard tool={tool} />);
     expect(screen.getByText("灵感写手")).toBeInTheDocument();
