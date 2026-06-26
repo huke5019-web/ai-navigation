@@ -168,7 +168,7 @@ describe("advertise page", () => {
     expect(screen.getByText("Homepage Banner: Contact for pricing")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Contact Us" })).toHaveAttribute(
       "href",
-      "mailto:ads@ai-navigation.local",
+      "mailto:huke5019@gmail.com",
     );
   });
 });

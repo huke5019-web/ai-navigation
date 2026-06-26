@@ -44,7 +44,7 @@ export default function AdvertisePage() {
         category sponsorships, in-feed recommendations, and long-term directory visibility.
       </p>
       <p>
-        <a className="primary-button inline-button" href="mailto:ads@ai-navigation.local">
+        <a className="primary-button inline-button" href="mailto:huke5019@gmail.com">
           Contact Us
         </a>
       </p>
