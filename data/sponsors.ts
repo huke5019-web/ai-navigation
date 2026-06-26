@@ -1,6 +1,6 @@
 export const sponsors = [
   {
-    id: "ad-001",
+    id: "home-banner-001",
     title: "Advertise Your AI Tool",
     description: "Promote your AI product to users looking for the best AI tools.",
     image: "/ads/ai-tool-ad.svg",
@@ -10,7 +10,7 @@ export const sponsors = [
     isActive: true,
   },
   {
-    id: "ad-002",
+    id: "home-sidebar-001",
     title: "Get Your AI Tool Featured",
     description: "Book a sidebar placement for steady visibility across the AI Navigation directory.",
     image: "/ads/ai-tool-ad.svg",
@@ -20,7 +20,29 @@ export const sponsors = [
     isActive: true,
   },
   {
-    id: "ad-003",
+    id: "category-banner-001",
+    title: "Advertise Your AI Tool",
+    description: "Promote your AI product to users looking for the best AI tools.",
+    image: "/ads/category-banner.png",
+    link: "/advertise",
+    position: "categoryBanner",
+    category: "coding",
+    label: "Sponsored",
+    isActive: true,
+  },
+  {
+    id: "sidebar-001",
+    title: "Sponsor AI Navigation",
+    description: "Reach AI tool users, developers and creators.",
+    image: "/ads/sidebar-sponsor.png",
+    link: "/advertise",
+    position: "sidebar",
+    category: "coding",
+    label: "Ad",
+    isActive: true,
+  },
+  {
+    id: "in-feed-001",
     title: "Advertise Your AI Tool",
     description: "Promote your AI product to users looking for the best AI tools.",
     image: "/ads/ai-tool-ad.svg",
@@ -30,7 +52,7 @@ export const sponsors = [
     isActive: true,
   },
   {
-    id: "ad-004",
+    id: "tool-detail-001",
     title: "Reach High-Intent AI Buyers",
     description: "Place your product inside detail pages where users compare tools and pricing.",
     image: "/ads/ai-tool-ad.svg",
@@ -40,7 +62,7 @@ export const sponsors = [
     isActive: true,
   },
   {
-    id: "ad-005",
+    id: "article-inline-001",
     title: "Sponsor an AI Buying Guide",
     description: "Show your product in blog content focused on AI workflows, writing, and development.",
     image: "/ads/ai-tool-ad.svg",
@@ -50,7 +72,7 @@ export const sponsors = [
     isActive: true,
   },
   {
-    id: "ad-006",
+    id: "footer-001",
     title: "Reserve a Persistent Ad Slot",
     description: "Use the footer placement for evergreen visibility across directory and content pages.",
     image: "/ads/ai-tool-ad.svg",

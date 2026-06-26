@@ -2,6 +2,7 @@ import { sponsors } from "@/data/sponsors";
 
 export type SponsorPosition =
   | "home-banner"
+  | "categoryBanner"
   | "sidebar"
   | "in-feed"
   | "tool-detail"
@@ -15,6 +16,7 @@ export type Sponsor = {
   image?: string;
   link: string;
   position: SponsorPosition;
+  category?: string;
   label?: string;
   startDate?: string;
   endDate?: string;
@@ -37,12 +39,30 @@ function isSponsorActive(sponsor: Sponsor, now = new Date()) {
   );
 }
 
-export function getSponsors(position: SponsorPosition, now = new Date()) {
-  return sponsorsData.filter(
+export function getSponsors(
+  position: SponsorPosition,
+  options: { category?: string; now?: Date } = {},
+) {
+  const { category, now = new Date() } = options;
+  const activeSponsors = sponsorsData.filter(
     (sponsor) => sponsor.position === position && isSponsorActive(sponsor, now),
   );
+
+  if (!category) {
+    return activeSponsors.filter((sponsor) => !sponsor.category);
+  }
+
+  const matchingCategory = activeSponsors.filter((sponsor) => sponsor.category === category);
+  if (matchingCategory.length) {
+    return matchingCategory;
+  }
+
+  return activeSponsors.filter((sponsor) => !sponsor.category);
 }
 
-export function getSponsor(position: SponsorPosition, now = new Date()) {
-  return getSponsors(position, now)[0] ?? null;
+export function getSponsor(
+  position: SponsorPosition,
+  options: { category?: string; now?: Date } = {},
+) {
+  return getSponsors(position, options)[0] ?? null;
 }

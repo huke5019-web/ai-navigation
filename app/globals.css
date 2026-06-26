@@ -406,7 +406,7 @@ select {
 }
 
 .ad-slot-banner {
-  min-height: 90px;
+  min-height: 180px;
 }
 
 .ad-slot-sidebar,
@@ -442,6 +442,29 @@ select {
 .sponsor-card img {
   display: block;
   width: 100%;
+}
+
+.ad-slot-banner .sponsor-card a {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 34%);
+  min-height: clamp(180px, 24vw, 220px);
+}
+
+.ad-slot-banner .sponsor-card img {
+  height: 100%;
+  object-fit: cover;
+}
+
+.ad-slot-banner .sponsor-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 20px 22px;
+}
+
+.ad-slot-sidebar .sponsor-card img {
+  aspect-ratio: 6 / 5;
+  object-fit: cover;
 }
 
 .ad-disclosure {
@@ -767,5 +790,18 @@ footer {
   .article-header h1,
   .content-page-header h1 {
     font-size: clamp(30px, 12vw, 48px);
+  }
+
+  .ad-slot-banner {
+    min-height: 180px;
+  }
+
+  .ad-slot-banner .sponsor-card a {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .ad-slot-banner .sponsor-card img {
+    max-height: 120px;
   }
 }

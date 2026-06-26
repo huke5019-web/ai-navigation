@@ -1,7 +1,8 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, test } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, test } from "vitest";
 
 import AdvertisePage from "@/app/(public)/advertise/page";
+import { AdSlot } from "@/components/public/ad-slot";
 import { SponsorAd } from "@/components/ads/sponsor-ad";
 
 const sponsor = {
@@ -14,6 +15,10 @@ const sponsor = {
   label: "Sponsored",
   isActive: true,
 };
+
+afterEach(() => {
+  cleanup();
+});
 
 describe("sponsor ads", () => {
   test("uses configured copy and internal links without sponsored rel", () => {
@@ -37,6 +42,23 @@ describe("sponsor ads", () => {
       "target",
     );
   });
+
+  test("category banner ad reads category-specific sponsor data", () => {
+    render(<AdSlot kind="banner" position="categoryBanner" category="coding" ads={[]} />);
+
+    expect(screen.getByText("Advertise Your AI Tool")).toBeInTheDocument();
+    expect(
+      screen.getByText("Promote your AI product to users looking for the best AI tools."),
+    ).toBeInTheDocument();
+  });
+
+  test("category sidebar ad reads category-specific sponsor data", () => {
+    render(<AdSlot kind="sidebar" position="sidebar" category="coding" ads={[]} />);
+
+    expect(screen.getByText("Ad")).toBeInTheDocument();
+    expect(screen.getByText("Sponsor AI Navigation")).toBeInTheDocument();
+    expect(screen.getByText("Reach AI tool users, developers and creators.")).toBeInTheDocument();
+  });
 });
 
 describe("advertise page", () => {
@@ -47,9 +69,12 @@ describe("advertise page", () => {
     expect(
       screen.getByText(/homepage advertising, tool list sponsored recommendations/i),
     ).toBeInTheDocument();
+    expect(screen.getByText("Category Banner")).toBeInTheDocument();
+    expect(screen.getByText("Sidebar Sponsor")).toBeInTheDocument();
+    expect(screen.getByText("Tool Detail Promotion")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Contact Us" })).toHaveAttribute(
       "href",
-      "mailto:ads@example.com",
+      "mailto:huke5019@gmail.com",
     );
   });
 });

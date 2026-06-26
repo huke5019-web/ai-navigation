@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 
 import { JsonLd } from "@/components/seo/json-ld";
 import { ToolsDirectory } from "@/components/public/tools-directory";
-import { getVisibleAds } from "@/lib/ads";
 import {
   getActiveCategories,
   getCategoryBySlug,
@@ -41,13 +40,11 @@ export default async function CategoryPage({
     notFound();
   }
 
-  const [setting, categories, featured, tools, banners, sidebarAds] = await Promise.all([
+  const [setting, categories, featured, tools] = await Promise.all([
     getSiteSetting(),
     getActiveCategories(),
     getFeaturedTools(),
     getTools({ query: q, category: slug }),
-    getVisibleAds("HOME_BANNER"),
-    getVisibleAds("HOME_SIDEBAR"),
   ]);
 
   return (
@@ -70,11 +67,14 @@ export default async function CategoryPage({
         categories={categories}
         featured={featured.filter((tool) => tool.category.slug === slug)}
         tools={tools}
-        banners={banners}
-        sidebarAds={sidebarAds}
+        banners={[]}
+        sidebarAds={[]}
         selectedCategory={slug}
         query={q}
         searchAction={`/categories/${slug}`}
+        bannerPosition="categoryBanner"
+        sidebarPosition="sidebar"
+        sponsorCategory={slug}
         heroLabel="CATEGORY"
         heroTitle={category.name}
         heroDescription={`Explore curated ${category.name.toLowerCase()} with direct links, pricing notes, and practical summaries.`}

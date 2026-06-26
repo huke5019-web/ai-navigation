@@ -17,9 +17,11 @@ export default function AdvertisePage() {
       breadcrumbs={[{ label: "Home", href: "/" }, { label: "Advertise" }]}
     >
       <ul>
-        <li>Homepage banner advertising for broad awareness</li>
-        <li>Tool list recommendation slots placed inside category and search results</li>
-        <li>AI tool spotlight placements for partner products and launches</li>
+        <li>Homepage Banner</li>
+        <li>Category Banner</li>
+        <li>Sidebar Sponsor</li>
+        <li>Tool List Sponsored Card</li>
+        <li>Tool Detail Promotion</li>
       </ul>
       <p>
         Every paid placement is clearly labeled as Sponsored. We keep the browsing experience
@@ -30,7 +32,7 @@ export default function AdvertisePage() {
         exposure, in-feed placement, and long-term directory visibility.
       </p>
       <p>
-        <a className="primary-button inline-button" href="mailto:ads@example.com">
+        <a className="primary-button inline-button" href="mailto:huke5019@gmail.com">
           Contact Us
         </a>
       </p>

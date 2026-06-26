@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+import Link from "next/link";
 import type { Advertisement } from "@prisma/client";
 
 import { siteConfig } from "@/lib/site-config";
@@ -32,17 +33,25 @@ const placeholderCopy: Record<AdSlotKind, { title: string; body: string }> = {
 };
 
 function DbAdvertisementCard({ ad }: { ad: Advertisement }) {
+  const isExternalLink = /^https?:\/\//i.test(ad.targetUrl);
+
   return (
     <article className="ad-card">
       <span className="ad-disclosure">Ad</span>
-      <a
-        href={ad.targetUrl}
-        target="_blank"
-        rel="nofollow sponsored noopener noreferrer"
-        aria-label={ad.title}
-      >
-        <img src={ad.imageUrl} alt={ad.title} />
-      </a>
+      {isExternalLink ? (
+        <a
+          href={ad.targetUrl}
+          target="_blank"
+          rel="nofollow sponsored noopener noreferrer"
+          aria-label={ad.title}
+        >
+          <img src={ad.imageUrl} alt={ad.title} />
+        </a>
+      ) : (
+        <Link href={ad.targetUrl} aria-label={ad.title}>
+          <img src={ad.imageUrl} alt={ad.title} />
+        </Link>
+      )}
     </article>
   );
 }
@@ -63,15 +72,17 @@ function PlaceholderAd({ kind }: { kind: AdSlotKind }) {
 export function AdSlot({
   kind,
   position,
+  category,
   ads = [],
   className = "",
 }: {
   kind: AdSlotKind;
   position?: SponsorPosition;
+  category?: string;
   ads?: Advertisement[];
   className?: string;
 }) {
-  const sponsor = position ? getSponsor(position) : null;
+  const sponsor = position ? getSponsor(position, { category }) : null;
 
   return (
     <div className={`ad-slot ad-slot-${kind} ${className}`.trim()}>

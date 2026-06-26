@@ -6,6 +6,7 @@ import { CategoryNav } from "@/components/public/category-nav";
 import { SearchForm } from "@/components/public/search-form";
 import { Sidebar } from "@/components/public/sidebar";
 import { ToolCard } from "@/components/public/tool-card";
+import type { SponsorPosition } from "@/lib/sponsors";
 
 type PublicTool = Prisma.ToolGetPayload<{
   include: { category: true; tags: { include: { tag: true } } };
@@ -45,6 +46,9 @@ export function ToolsDirectory({
   heroTitle,
   heroDescription,
   searchAction = "/",
+  bannerPosition = "home-banner",
+  sidebarPosition = "sidebar",
+  sponsorCategory,
 }: {
   setting: SiteSetting | null;
   categories: Category[];
@@ -58,6 +62,9 @@ export function ToolsDirectory({
   heroTitle: string;
   heroDescription: string;
   searchAction?: string;
+  bannerPosition?: SponsorPosition;
+  sidebarPosition?: SponsorPosition;
+  sponsorCategory?: string;
 }) {
   return (
     <div className="public-shell">
@@ -75,7 +82,13 @@ export function ToolsDirectory({
         </header>
         <SearchForm query={query} category={selectedCategory} action={searchAction} />
         <CategoryNav mobile categories={categories} selected={selectedCategory} query={query} />
-        <AdSlot kind="banner" ads={banners} position="home-banner" className="banner-ads" />
+        <AdSlot
+          kind="banner"
+          ads={banners}
+          position={bannerPosition}
+          category={sponsorCategory}
+          className="banner-ads"
+        />
         {featured.length ? (
           <section>
             <div className="section-title">
@@ -102,7 +115,12 @@ export function ToolsDirectory({
       </main>
       <aside className="ad-rail">
         <div className="rail-title">Sponsored</div>
-        <AdSlot kind="sidebar" ads={sidebarAds} position="sidebar" />
+        <AdSlot
+          kind="sidebar"
+          ads={sidebarAds}
+          position={sidebarPosition}
+          category={sponsorCategory}
+        />
       </aside>
     </div>
   );

@@ -6,7 +6,7 @@ A clean, dark AI tools directory built with Next.js, TypeScript, Prisma, and Ver
 
 - Reusable ad system with banner, sidebar, in-feed, footer, and article placements
 - Google AdSense support driven by environment variables
-- Sponsored recommendation cards driven by `data/sponsors.json`
+- Sponsored recommendation cards driven by `data/sponsors.ts`
 - Affiliate link support for AI tool listings
 - SEO foundations: metadata, canonical URLs, Open Graph, Twitter Card, JSON-LD, sitemap, robots, and `ads.txt`
 - Static content pages: `/about`, `/contact`, `/privacy-policy`, `/terms`, `/advertise`, `/submit-tool`
@@ -221,7 +221,7 @@ If you need another placement, add a new `kind`, style block, and environment-ba
 
 Edit:
 
-- [data/sponsors.json](/C:/Users/admin/Documents/Codex/2026-06-11/playwright-mcp/data/sponsors.json)
+- [data/sponsors.ts](/C:/Users/admin/Documents/Codex/2026-06-11/playwright-mcp/data/sponsors.ts)
 
 Fields:
 
@@ -231,6 +231,8 @@ Fields:
 - `image`
 - `link`
 - `position`
+- `category`
+- `label`
 - `startDate`
 - `endDate`
 - `isActive`
