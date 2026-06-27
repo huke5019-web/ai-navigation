@@ -15,13 +15,16 @@ export function SponsorAd({
   className?: string;
 }) {
   const image = sponsor.image?.trim();
+  const buttonLabel =
+    sponsor.buttonLabel?.trim() ||
+    (sponsor.type === "affiliate" ? "Try Now" : sponsor.type === "direct" ? "Learn More" : "Learn More");
   const body = (
     <>
       {image ? <img src={image} alt={sponsor.title} /> : null}
       <div className="sponsor-copy">
         <h3>{sponsor.title}</h3>
         <p>{sponsor.description}</p>
-        <span className="sponsor-cta">Learn More</span>
+        <span className="sponsor-cta">{buttonLabel}</span>
       </div>
     </>
   );

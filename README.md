@@ -234,6 +234,7 @@ Fields:
 - `category`
 - `label`
 - `type`
+- `buttonLabel`
 - `startDate`
 - `endDate`
 - `isActive`

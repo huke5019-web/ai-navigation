@@ -21,6 +21,7 @@ export type Sponsor = {
   category?: string;
   label?: string;
   type: SponsorType;
+  buttonLabel?: string;
   startDate?: string;
   endDate?: string;
   isActive: boolean;

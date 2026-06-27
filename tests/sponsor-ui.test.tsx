@@ -10,27 +10,29 @@ import { SponsorAd } from "@/components/ads/sponsor-ad";
 
 const directSponsor = {
   id: "homepage-banner-001",
-  title: "Promote Your AI Product",
-  description: "Reach users who are actively searching for AI tools.",
+  title: "Launch Your AI Brand in Front of Buyers",
+  description: "Reach founders, creators, and teams actively comparing AI tools for work.",
   image: "/ads/homepage-banner.svg",
   link: "/advertise",
   position: "homeBanner" as const,
   category: "all",
   label: "Sponsored",
   type: "direct" as const,
+  buttonLabel: "Advertise Here",
   isActive: true,
 };
 
 const affiliateSponsor = {
   id: "coding-banner-affiliate-001",
-  title: "Featured AI Coding Tool",
-  description: "Build, debug and ship projects faster with AI coding assistance.",
+  title: "Ship Code Faster With an AI Coding Copilot",
+  description: "Generate, refactor, and debug code faster with a sponsored developer workflow tool.",
   image: "/ads/coding-ai-tool.svg",
   link: "https://www.cursor.com/",
   position: "categoryBanner" as const,
   category: "coding",
   label: "Sponsored",
   type: "affiliate" as const,
+  buttonLabel: "Try Now",
   isActive: true,
 };
 
@@ -44,21 +46,21 @@ describe("sponsor ads", () => {
 
     expect(screen.getByText("Sponsored")).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Promote Your AI Product" }),
+      screen.getByRole("heading", { name: "Launch Your AI Brand in Front of Buyers" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("Reach users who are actively searching for AI tools."),
+      screen.getByText("Reach founders, creators, and teams actively comparing AI tools for work."),
     ).toBeInTheDocument();
-    expect(screen.getByText("Learn More")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Promote Your AI Product" })).toHaveAttribute(
+    expect(screen.getByText("Advertise Here")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Launch Your AI Brand in Front of Buyers" })).toHaveAttribute(
       "href",
       "/advertise",
     );
-    expect(screen.getByRole("img", { name: "Promote Your AI Product" })).toHaveAttribute(
+    expect(screen.getByRole("img", { name: "Launch Your AI Brand in Front of Buyers" })).toHaveAttribute(
       "src",
       "/ads/homepage-banner.svg",
     );
-    expect(screen.getByRole("link", { name: "Promote Your AI Product" })).not.toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Launch Your AI Brand in Front of Buyers" })).not.toHaveAttribute(
       "target",
     );
   });
@@ -66,15 +68,16 @@ describe("sponsor ads", () => {
   test("uses sponsored rel for external affiliate links", () => {
     render(<SponsorAd sponsor={affiliateSponsor} />);
 
-    expect(screen.getByRole("link", { name: "Featured AI Coding Tool" })).toHaveAttribute(
+    expect(screen.getByText("Try Now")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Ship Code Faster With an AI Coding Copilot" })).toHaveAttribute(
       "href",
       "https://www.cursor.com/",
     );
-    expect(screen.getByRole("link", { name: "Featured AI Coding Tool" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Ship Code Faster With an AI Coding Copilot" })).toHaveAttribute(
       "target",
       "_blank",
     );
-    expect(screen.getByRole("link", { name: "Featured AI Coding Tool" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Ship Code Faster With an AI Coding Copilot" })).toHaveAttribute(
       "rel",
       "nofollow sponsored noopener noreferrer",
     );
@@ -83,18 +86,18 @@ describe("sponsor ads", () => {
   test("homepage banner ad reads homeBanner sponsor data", () => {
     render(<AdSlot kind="banner" position="homeBanner" ads={[]} />);
 
-    expect(screen.getByText("Promote Your AI Product")).toBeInTheDocument();
+    expect(screen.getByText("Launch Your AI Brand in Front of Buyers")).toBeInTheDocument();
     expect(
-      screen.getByText("Reach users who are actively searching for AI tools."),
+      screen.getByText("Reach founders, creators, and teams actively comparing AI tools for work."),
     ).toBeInTheDocument();
   });
 
   test("category banner ad reads category-specific affiliate sponsor data", () => {
     render(<AdSlot kind="banner" position="categoryBanner" category="coding" ads={[]} />);
 
-    expect(screen.getByText("Featured AI Coding Tool")).toBeInTheDocument();
+    expect(screen.getByText("Ship Code Faster With an AI Coding Copilot")).toBeInTheDocument();
     expect(
-      screen.getByText("Build, debug and ship projects faster with AI coding assistance."),
+      screen.getByText("Generate, refactor, and debug code faster with a sponsored developer workflow tool."),
     ).toBeInTheDocument();
   });
 
@@ -104,7 +107,7 @@ describe("sponsor ads", () => {
     expect(screen.getByText("Ad")).toBeInTheDocument();
     expect(screen.getByText("Advertise on AI Navigation")).toBeInTheDocument();
     expect(
-      screen.getByText("Promote your AI tool to creators, developers and business users."),
+      screen.getByText("Promote your AI tool to developers, founders, creators, and business buyers."),
     ).toBeInTheDocument();
   });
 
@@ -125,7 +128,7 @@ describe("sponsor ads", () => {
 
     render(<AdSlot kind="banner" position="homeBanner" ads={[databaseAd]} />);
 
-    expect(screen.getByText("Promote Your AI Product")).toBeInTheDocument();
+    expect(screen.getByText("Launch Your AI Brand in Front of Buyers")).toBeInTheDocument();
     expect(screen.queryByRole("img", { name: "Database Banner" })).not.toBeInTheDocument();
   });
 
@@ -183,6 +186,7 @@ describe("ads guide page", () => {
     expect(screen.getByText("homeBanner")).toBeInTheDocument();
     expect(screen.getByText("categoryBanner")).toBeInTheDocument();
     expect(screen.getByText('type: "affiliate"')).toBeInTheDocument();
+    expect(screen.getByText("buttonLabel")).toBeInTheDocument();
     expect(screen.getByText("isActive")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Open Advertise Page" })).toHaveAttribute(
       "href",

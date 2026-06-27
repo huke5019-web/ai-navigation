@@ -30,6 +30,7 @@ export default function AdsGuidePage() {
         <li>Change <code>description</code> to update supporting text.</li>
         <li>Change <code>image</code> to point at a file inside <code>public/ads/</code>.</li>
         <li>Change <code>link</code> to update the destination URL.</li>
+        <li>Change <code>buttonLabel</code> to update the CTA text shown on the ad card.</li>
         <li>Set <code>isActive</code> to <code>false</code> to turn an ad off.</li>
       </ul>
       <p>
