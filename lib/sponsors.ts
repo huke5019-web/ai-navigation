@@ -70,3 +70,20 @@ export function getSponsor(
 ) {
   return getSponsors(position, options)[0] ?? null;
 }
+
+export function getAllSponsors(options: { now?: Date; includeInactive?: boolean } = {}) {
+  const { now = new Date(), includeInactive = false } = options;
+
+  if (includeInactive) {
+    return [...sponsorsData];
+  }
+
+  return sponsorsData.filter((sponsor) => isSponsorActive(sponsor, now));
+}
+
+export function getSponsorById(
+  id: string,
+  options: { now?: Date; includeInactive?: boolean } = {},
+) {
+  return getAllSponsors(options).find((sponsor) => sponsor.id === id) ?? null;
+}

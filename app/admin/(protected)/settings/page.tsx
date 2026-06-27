@@ -1,1 +1,35 @@
-import{updateSiteSettingForm}from"@/app/admin/actions";import{getSiteSetting}from"@/lib/queries";export default async function Page(){const s=await getSiteSetting();return <><h1>站点设置</h1><form className="admin-form" action={updateSiteSettingForm}><label>网站名称<input name="siteName" defaultValue={s?.siteName??"AI 导航"} required/></label><label>Logo URL<input name="logoUrl" defaultValue={s?.logoUrl??""}/></label><label className="wide">网站简介<input name="siteDescription" defaultValue={s?.siteDescription??""} required/></label><label className="wide">页脚文字<input name="footerText" defaultValue={s?.footerText??""} required/></label><button>保存设置</button></form></>}
+import { updateSiteSettingForm } from "@/app/admin/actions";
+import { getSiteSetting } from "@/lib/queries";
+
+export default async function SettingsPage() {
+  const setting = await getSiteSetting();
+
+  return (
+    <>
+      <h1>Settings</h1>
+      <form className="admin-form" action={updateSiteSettingForm}>
+        <label>
+          Site name
+          <input name="siteName" defaultValue={setting?.siteName ?? "AI Navigation"} required />
+        </label>
+        <label>
+          Logo URL
+          <input name="logoUrl" defaultValue={setting?.logoUrl ?? ""} />
+        </label>
+        <label className="wide">
+          Site description
+          <input
+            name="siteDescription"
+            defaultValue={setting?.siteDescription ?? ""}
+            required
+          />
+        </label>
+        <label className="wide">
+          Footer text
+          <input name="footerText" defaultValue={setting?.footerText ?? ""} required />
+        </label>
+        <button>Save settings</button>
+      </form>
+    </>
+  );
+}

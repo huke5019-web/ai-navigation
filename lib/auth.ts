@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from "node:crypto";
+import { createHmac, randomInt, timingSafeEqual } from "node:crypto";
 
 import { compare } from "bcryptjs";
 import { cookies } from "next/headers";
@@ -9,13 +9,14 @@ import {
   ADMIN_SESSION_COOKIE,
   ADMIN_SESSION_MAX_AGE,
 } from "@/lib/constants";
-import { prisma } from "@/lib/prisma";
 
 const authEnvironmentSchema = z.object({
   ADMIN_USERNAME: z.string().min(1),
   ADMIN_PASSWORD_HASH: z.string().min(1),
   SESSION_SECRET: z.string().min(32),
 });
+
+type AuthEnvironment = z.infer<typeof authEnvironmentSchema>;
 
 export function parseAuthEnvironment(environment: {
   ADMIN_USERNAME?: string;
@@ -25,50 +26,49 @@ export function parseAuthEnvironment(environment: {
   return authEnvironmentSchema.parse(environment);
 }
 
-function getAuthEnvironment() {
-  return parseAuthEnvironment({
+function getAuthEnvironmentSafe(): AuthEnvironment | null {
+  const result = authEnvironmentSchema.safeParse({
     ADMIN_USERNAME: process.env.ADMIN_USERNAME,
     ADMIN_PASSWORD_HASH: process.env.ADMIN_PASSWORD_HASH,
     SESSION_SECRET: process.env.SESSION_SECRET,
   });
+
+  return result.success ? result.data : null;
+}
+
+function getAuthEnvironment() {
+  const environment = getAuthEnvironmentSafe();
+  if (!environment) {
+    throw new Error("Admin login is not configured yet.");
+  }
+  return environment;
+}
+
+function signSessionValue(username: string, expiresAt: number, secret: string) {
+  return createHmac("sha256", secret)
+    .update(`${username}.${expiresAt}`)
+    .digest("base64url");
+}
+
+export function createSignedSessionValue(username: string, expiresAt: number) {
+  return `${username}.${expiresAt}.${signSessionValue(username, expiresAt, getAuthEnvironment().SESSION_SECRET)}`;
 }
 
 export async function verifyAdminCredentials(username: string, password: string) {
-  const environment = getAuthEnvironment();
+  const environment = getAuthEnvironmentSafe();
+  if (!environment) {
+    return false;
+  }
+
   const passwordMatches = await compare(password, environment.ADMIN_PASSWORD_HASH);
   return username === environment.ADMIN_USERNAME && passwordMatches;
 }
 
-export function generateSessionToken() {
-  return randomBytes(32).toString("base64url");
-}
-
-export function hashSessionToken(token: string) {
-  return createHash("sha256")
-    .update(`${getAuthEnvironment().SESSION_SECRET}:${token}`)
-    .digest("hex");
-}
-
 export async function createAdminSession() {
   const cookieStore = await cookies();
-  const previousToken = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
-  const token = generateSessionToken();
-  const expiresAt = new Date(Date.now() + ADMIN_SESSION_MAX_AGE * 1000);
-  const staleSessionFilters = [
-    { expiresAt: { lte: new Date() } },
-    ...(previousToken
-      ? [{ tokenHash: hashSessionToken(previousToken) }]
-      : []),
-  ];
-
-  await prisma.$transaction([
-    prisma.adminSession.deleteMany({
-      where: { OR: staleSessionFilters },
-    }),
-    prisma.adminSession.create({
-      data: { tokenHash: hashSessionToken(token), expiresAt },
-    }),
-  ]);
+  const environment = getAuthEnvironment();
+  const expiresAt = Date.now() + ADMIN_SESSION_MAX_AGE * 1000 + randomInt(1, 1000);
+  const token = createSignedSessionValue(environment.ADMIN_USERNAME, expiresAt);
 
   cookieStore.set(ADMIN_SESSION_COOKIE, token, {
     httpOnly: true,
@@ -76,26 +76,48 @@ export async function createAdminSession() {
     path: "/",
     secure: process.env.NODE_ENV === "production",
     maxAge: ADMIN_SESSION_MAX_AGE,
-    expires: expiresAt,
+    expires: new Date(expiresAt),
   });
 }
 
 export async function getAdminSession() {
+  const environment = getAuthEnvironmentSafe();
+  if (!environment) {
+    return null;
+  }
+
   const cookieStore = await cookies();
   const token = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
   if (!token) return null;
 
-  const session = await prisma.adminSession.findUnique({
-    where: { tokenHash: hashSessionToken(token) },
-  });
-  if (!session) return null;
-
-  if (session.expiresAt <= new Date()) {
-    await prisma.adminSession.deleteMany({ where: { id: session.id } });
+  const [username, expiresRaw, signature] = token.split(".");
+  if (!username || !expiresRaw || !signature) {
     return null;
   }
 
-  return session;
+  const expiresAt = Number(expiresRaw);
+  if (!Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
+    return null;
+  }
+
+  const expectedSignature = signSessionValue(username, expiresAt, environment.SESSION_SECRET);
+  const actualBuffer = Buffer.from(signature);
+  const expectedBuffer = Buffer.from(expectedSignature);
+  if (
+    actualBuffer.length !== expectedBuffer.length ||
+    !timingSafeEqual(actualBuffer, expectedBuffer)
+  ) {
+    return null;
+  }
+
+  if (username !== environment.ADMIN_USERNAME) {
+    return null;
+  }
+
+  return {
+    username,
+    expiresAt: new Date(expiresAt),
+  };
 }
 
 export async function requireAdmin() {
@@ -106,11 +128,5 @@ export async function requireAdmin() {
 
 export async function destroyAdminSession() {
   const cookieStore = await cookies();
-  const token = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
-  if (token) {
-    await prisma.adminSession.deleteMany({
-      where: { tokenHash: hashSessionToken(token) },
-    });
-  }
   cookieStore.delete(ADMIN_SESSION_COOKIE);
 }

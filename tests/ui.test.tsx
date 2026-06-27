@@ -36,7 +36,7 @@ import { ToolCard } from "@/components/public/tool-card";
 
 const category = {
   id: 1,
-  name: "AI 写作",
+  name: "AI Writing",
   slug: "writing",
   icon: "PenLine",
   sortOrder: 10,
@@ -48,11 +48,11 @@ const category = {
 const tool = {
   id: 1,
   categoryId: 1,
-  name: "灵感写手",
+  name: "Idea Writer",
   slug: "idea-writer",
   logoUrl: null,
-  summary: "快速生成清晰自然的中文内容。",
-  description: "适合文章、社交媒体和营销文案的 AI 写作工具。",
+  summary: "Quickly turns rough prompts into polished writing.",
+  description: "An AI writing tool for articles, social posts, and marketing copy.",
   websiteUrl: "https://example.com/tool",
   officialUrl: "https://example.com/tool",
   affiliateUrl: null,
@@ -66,12 +66,12 @@ const tool = {
   createdAt: new Date(),
   updatedAt: new Date(),
   category,
-  tags: [{ toolId: 1, tagId: 1, tag: { id: 1, name: "中文", slug: "chinese" } }],
+  tags: [{ toolId: 1, tagId: 1, tag: { id: 1, name: "Writing", slug: "writing" } }],
 };
 
 const ad = {
   id: 1,
-  title: "效率工具推广",
+  title: "Productivity Promotion",
   imageUrl: "https://example.com/ad.png",
   targetUrl: "https://example.com/ad",
   placement: "HOME_SIDEBAR" as const,
@@ -94,40 +94,40 @@ describe("public components", () => {
       <Sidebar
         setting={{
           id: 1,
-          siteName: "AI 导航",
-          siteDescription: "发现值得使用的 AI 工具",
+          siteName: "AI Navigation",
+          siteDescription: "Discover practical AI tools",
           logoUrl: null,
-          footerText: "AI 导航",
+          footerText: "AI Navigation",
           updatedAt: new Date(),
         }}
         categories={[]}
       />,
     );
 
-    expect(screen.getByText("AI 导航")).toHaveClass("brand-title");
+    expect(screen.getByText("AI Navigation")).toHaveClass("brand-title");
     expect(screen.getByText("Curated tools for work and creativity")).toHaveClass(
       "brand-subtitle",
     );
   });
 
-  test("tool card exposes detail and external links", () => {
+  test("tool card exposes detail and tracked outbound links", () => {
     render(<ToolCard tool={tool} />);
-    expect(screen.getByText("灵感写手")).toBeInTheDocument();
-    expect(screen.getByText("快速生成清晰自然的中文内容。")).toBeInTheDocument();
-    expect(screen.getByText("AI 写作")).toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: "View 灵感写手 details" })[0]).toHaveAttribute(
+    expect(screen.getByText("Idea Writer")).toBeInTheDocument();
+    expect(screen.getByText("Quickly turns rough prompts into polished writing.")).toBeInTheDocument();
+    expect(screen.getByText("AI Writing")).toBeInTheDocument();
+    expect(screen.getAllByRole("link", { name: "View Idea Writer details" })[0]).toHaveAttribute(
       "href",
       "/tools/idea-writer",
     );
-    expect(screen.getByRole("link", { name: "Visit 灵感写手" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Visit Idea Writer" })).toHaveAttribute(
       "href",
-      "https://example.com/tool",
+      "/out/tool/idea-writer",
     );
   });
 
   test("tool card renders its configured icon", () => {
     render(<ToolCard tool={{ ...tool, logoUrl: "https://example.com/logo.svg" }} />);
-    expect(screen.getByRole("img", { name: "灵感写手图标" })).toHaveAttribute(
+    expect(screen.getByRole("img", { name: "Idea Writer图标" })).toHaveAttribute(
       "src",
       "https://example.com/logo.svg",
     );
@@ -135,9 +135,9 @@ describe("public components", () => {
 
   test("tool icon falls back to the initial after an image error", () => {
     render(<ToolCard tool={{ ...tool, logoUrl: "https://example.com/broken.svg" }} />);
-    fireEvent.error(screen.getByRole("img", { name: "灵感写手图标" }));
-    expect(screen.queryByRole("img", { name: "灵感写手图标" })).not.toBeInTheDocument();
-    expect(screen.getByText("灵")).toBeInTheDocument();
+    fireEvent.error(screen.getByRole("img", { name: "Idea Writer图标" }));
+    expect(screen.queryByRole("img", { name: "Idea Writer图标" })).not.toBeInTheDocument();
+    expect(screen.getByText("I")).toBeInTheDocument();
   });
 
   test("ad slot shows placeholder and labelled ads", () => {
@@ -145,7 +145,7 @@ describe("public components", () => {
     expect(screen.getByText("Advertising")).toBeInTheDocument();
     rerender(<AdSlot kind="sidebar" ads={[ad]} />);
     expect(screen.getByText("Ad")).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: "效率工具推广" })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Productivity Promotion" })).toBeInTheDocument();
   });
 });
 
@@ -153,10 +153,10 @@ describe("public pages", () => {
   test("home reads filters and renders updated sections", async () => {
     mocks.getSiteSetting.mockResolvedValue({
       id: 1,
-      siteName: "AI 导航",
-      siteDescription: "发现实用 AI 工具",
+      siteName: "AI Navigation",
+      siteDescription: "Discover practical AI tools",
       logoUrl: null,
-      footerText: "AI 导航",
+      footerText: "AI Navigation",
       updatedAt: new Date(),
     });
     mocks.getActiveCategories.mockResolvedValue([category]);
@@ -166,10 +166,10 @@ describe("public pages", () => {
       .mockResolvedValueOnce([{ ...ad, placement: "HOME_BANNER" }])
       .mockResolvedValueOnce([ad]);
 
-    render(await HomePage({ searchParams: Promise.resolve({ q: "写作" }) }));
+    render(await HomePage({ searchParams: Promise.resolve({ q: "writing" }) }));
 
-    expect(mocks.getTools).toHaveBeenCalledWith({ query: "写作" });
-    expect(screen.getByRole("searchbox", { name: "Search AI tools" })).toHaveValue("写作");
+    expect(mocks.getTools).toHaveBeenCalledWith({ query: "writing" });
+    expect(screen.getByRole("searchbox", { name: "Search AI tools" })).toHaveValue("writing");
     expect(screen.getByRole("heading", { name: "Featured Tools" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Tool Directory" })).toBeInTheDocument();
   });
@@ -181,7 +181,7 @@ describe("public pages", () => {
     mocks.getTools.mockResolvedValue([]);
     mocks.getVisibleAds.mockResolvedValue([]);
 
-    render(await HomePage({ searchParams: Promise.resolve({ q: "不存在" }) }));
+    render(await HomePage({ searchParams: Promise.resolve({ q: "missing" }) }));
 
     expect(screen.getByRole("status")).toHaveTextContent(
       "No matching tools yet. Try a different keyword or category.",
@@ -196,9 +196,9 @@ describe("public pages", () => {
     render(await ToolDetailPage({ params: Promise.resolve({ slug: "idea-writer" }) }));
 
     expect(screen.getByText(tool.description)).toBeInTheDocument();
-    expect(screen.getAllByRole("link", { name: "Visit 灵感写手" })[0]).toHaveAttribute(
-      "rel",
-      expect.stringContaining("noreferrer"),
+    expect(screen.getAllByRole("link", { name: "Visit Idea Writer" })[0]).toHaveAttribute(
+      "href",
+      "/out/tool/idea-writer",
     );
     expect(screen.getByRole("heading", { name: "Related Tools" })).toBeInTheDocument();
   });

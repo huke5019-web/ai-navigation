@@ -1,16 +1,17 @@
 "use client";
 
 import { trackEvent } from "@/lib/analytics";
+import { buildToolOutboundHref } from "@/lib/click-paths";
 import {
   getExternalRel,
   getSponsorLabel,
   getToolCtaLabel,
   getToolLinkType,
-  getToolPrimaryUrl,
 } from "@/lib/tool-links";
 
 type ExternalToolLinkProps = {
   tool: {
+    slug: string;
     name: string;
     affiliateUrl?: string | null;
     officialUrl?: string | null;
@@ -28,7 +29,7 @@ export function ExternalToolLink({
   className,
   children,
 }: ExternalToolLinkProps) {
-  const href = getToolPrimaryUrl(tool);
+  const href = buildToolOutboundHref(tool.slug);
   const rel = getExternalRel(tool);
   const linkType = getToolLinkType(tool);
   const label = getSponsorLabel(tool);

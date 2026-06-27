@@ -1,2 +1,37 @@
-import Link from "next/link";import type{ReactNode}from"react";import{logoutAction}from"@/app/admin/actions";import{requireAdmin}from"@/lib/auth";import"../admin.css";
-export default async function Layout({children}:{children:ReactNode}){await requireAdmin();return <div className="admin-shell"><aside><h2>AI 导航</h2>{[["/admin","仪表盘"],["/admin/tools","工具管理"],["/admin/categories","分类管理"],["/admin/ads","广告管理"],["/admin/settings","站点设置"]].map(([href,label])=><Link href={href} key={href}>{label}</Link>)}<form action={logoutAction}><button>退出登录</button></form></aside><main>{children}</main></div>}
+import Link from "next/link";
+import type { ReactNode } from "react";
+
+import { logoutAction } from "@/app/admin/actions";
+import { requireAdmin } from "@/lib/auth";
+import "../admin.css";
+
+const navigation = [
+  { href: "/admin", label: "Overview" },
+  { href: "/admin/tools", label: "Tools" },
+  { href: "/admin/categories", label: "Categories" },
+  { href: "/admin/ads", label: "Ads" },
+  { href: "/admin/analytics", label: "Analytics" },
+  { href: "/admin/settings", label: "Settings" },
+  { href: "/admin/ads-guide", label: "Ads Guide" },
+];
+
+export default async function Layout({ children }: { children: ReactNode }) {
+  await requireAdmin();
+
+  return (
+    <div className="admin-shell">
+      <aside>
+        <h2>AI Navigation</h2>
+        {navigation.map((item) => (
+          <Link href={item.href} key={item.href}>
+            {item.label}
+          </Link>
+        ))}
+        <form action={logoutAction}>
+          <button>Sign out</button>
+        </form>
+      </aside>
+      <main>{children}</main>
+    </div>
+  );
+}

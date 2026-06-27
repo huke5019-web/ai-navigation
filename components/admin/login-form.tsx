@@ -12,7 +12,7 @@ export function LoginForm() {
 
   return (
     <form action={formAction} aria-describedby="login-error" className={styles.form}>
-      <label htmlFor="username">管理员账号</label>
+      <label htmlFor="username">Admin username</label>
       <input
         autoComplete="username"
         disabled={pending}
@@ -22,7 +22,7 @@ export function LoginForm() {
         type="text"
       />
 
-      <label htmlFor="password">密码</label>
+      <label htmlFor="password">Password</label>
       <input
         autoComplete="current-password"
         disabled={pending}
@@ -37,7 +37,7 @@ export function LoginForm() {
       </p>
 
       <button disabled={pending} type="submit">
-        {pending ? "正在登录..." : "登录"}
+        {pending ? "Signing in..." : "Sign in"}
       </button>
     </form>
   );

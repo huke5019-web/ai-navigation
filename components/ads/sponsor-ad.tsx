@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 
+import { buildSponsorOutboundHref } from "@/lib/click-paths";
 import type { Sponsor } from "@/lib/sponsors";
 
 function isExternalLink(href: string) {
@@ -17,7 +18,8 @@ export function SponsorAd({
   const image = sponsor.image?.trim();
   const buttonLabel =
     sponsor.buttonLabel?.trim() ||
-    (sponsor.type === "affiliate" ? "Try Now" : sponsor.type === "direct" ? "Learn More" : "Learn More");
+    (sponsor.type === "affiliate" ? "Try Now" : "Learn More");
+  const trackedHref = buildSponsorOutboundHref(sponsor.id);
   const body = (
     <>
       {image ? <img src={image} alt={sponsor.title} /> : null}
@@ -34,7 +36,7 @@ export function SponsorAd({
       <span className="ad-disclosure">{sponsor.label?.trim() || "Sponsored"}</span>
       {isExternalLink(sponsor.link) ? (
         <a
-          href={sponsor.link}
+          href={trackedHref}
           target="_blank"
           rel="nofollow sponsored noopener noreferrer"
           aria-label={sponsor.title}
@@ -42,7 +44,7 @@ export function SponsorAd({
           {body}
         </a>
       ) : (
-        <Link href={sponsor.link} aria-label={sponsor.title}>
+        <Link href={trackedHref} aria-label={sponsor.title}>
           {body}
         </Link>
       )}

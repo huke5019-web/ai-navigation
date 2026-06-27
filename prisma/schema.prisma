@@ -13,6 +13,18 @@ enum AdPlacement {
   TOOL_DETAIL
 }
 
+enum ClickTargetType {
+  TOOL
+  SPONSOR
+}
+
+enum ClickLinkType {
+  OFFICIAL
+  AFFILIATE
+  DIRECT
+  ADSENSE
+}
+
 model Category {
   id        Int      @id @default(autoincrement())
   name      String
@@ -105,4 +117,24 @@ model AdminSession {
   createdAt DateTime @default(now())
 
   @@index([expiresAt])
+}
+
+model ClickEvent {
+  id              String          @id @default(cuid())
+  targetType      ClickTargetType
+  linkType        ClickLinkType
+  toolSlug        String?
+  toolName        String?
+  categorySlug    String?
+  sponsorId       String?
+  sponsorTitle    String?
+  sponsorPosition String?
+  sponsorCategory String?
+  targetUrl       String
+  createdAt       DateTime        @default(now())
+
+  @@index([createdAt])
+  @@index([targetType, createdAt])
+  @@index([toolSlug, createdAt])
+  @@index([sponsorId, createdAt])
 }

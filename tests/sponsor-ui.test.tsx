@@ -54,7 +54,7 @@ describe("sponsor ads", () => {
     expect(screen.getByText("Advertise Here")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Launch Your AI Brand in Front of Buyers" })).toHaveAttribute(
       "href",
-      "/advertise",
+      "/out/sponsor/homepage-banner-001",
     );
     expect(screen.getByRole("img", { name: "Launch Your AI Brand in Front of Buyers" })).toHaveAttribute(
       "src",
@@ -71,7 +71,7 @@ describe("sponsor ads", () => {
     expect(screen.getByText("Try Now")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Ship Code Faster With an AI Coding Copilot" })).toHaveAttribute(
       "href",
-      "https://www.cursor.com/",
+      "/out/sponsor/coding-banner-affiliate-001",
     );
     expect(screen.getByRole("link", { name: "Ship Code Faster With an AI Coding Copilot" })).toHaveAttribute(
       "target",

@@ -119,6 +119,11 @@ describe("admin authentication", () => {
     await expect(auth.verifyAdminCredentials("admin", "wrong")).resolves.toBe(false);
   });
 
+  it("returns false when auth environment is missing", async () => {
+    vi.stubEnv("ADMIN_USERNAME", "");
+    await expect(auth.verifyAdminCredentials("admin", "secret")).resolves.toBe(false);
+  });
+
   it("validates required authentication environment variables", () => {
     expect(() =>
       auth.parseAuthEnvironment({
@@ -129,26 +134,13 @@ describe("admin authentication", () => {
     ).toThrow(/SESSION_SECRET/);
   });
 
-  it("generates random tokens and hashes them with SHA-256 plus the secret", () => {
-    const first = auth.generateSessionToken();
-    const second = auth.generateSessionToken();
-
-    expect(first).not.toBe(second);
-    expect(Buffer.from(first, "base64url")).toHaveLength(32);
-    expect(auth.hashSessionToken("token")).toMatch(/^[a-f0-9]{64}$/);
-    expect(auth.hashSessionToken("token")).not.toBe("token");
-  });
-
-  it("persists only the token hash and writes a seven-day secure cookie", async () => {
+  it("creates a signed session cookie", async () => {
     vi.stubEnv("NODE_ENV", "production");
     await auth.createAdminSession();
 
     const rawToken = cookieValues.get("admin_session");
-    const persisted = await prisma.adminSession.findFirstOrThrow();
     expect(rawToken).toBeTruthy();
-    expect(persisted.tokenHash).toBe(auth.hashSessionToken(rawToken!));
-    expect(persisted.tokenHash).not.toBe(rawToken);
-    expect(persisted.expiresAt.getTime()).toBeGreaterThan(Date.now() + 6 * 86_400_000);
+    expect(rawToken?.split(".")).toHaveLength(3);
     expect(cookieWrites.at(-1)).toMatchObject({
       name: "admin_session",
       options: {
@@ -161,40 +153,30 @@ describe("admin authentication", () => {
     });
   });
 
-  it("returns a valid session and deletes expired sessions", async () => {
+  it("creates a reusable signed session value", () => {
+    const value = auth.createSignedSessionValue("admin", Date.now() + 60_000);
+    expect(value.split(".")).toHaveLength(3);
+  });
+
+  it("returns a valid session and rejects expired cookies", async () => {
     vi.stubEnv("NODE_ENV", "test");
     await auth.createAdminSession();
     await expect(auth.getAdminSession()).resolves.toMatchObject({
-      tokenHash: auth.hashSessionToken(cookieValues.get("admin_session")!),
+      username: "admin",
     });
 
-    await prisma.adminSession.updateMany({
-      data: { expiresAt: new Date(Date.now() - 1_000) },
-    });
+    const expiredValue = auth.createSignedSessionValue("admin", Date.now() - 1_000);
+    cookieValues.set("admin_session", expiredValue);
     await expect(auth.getAdminSession()).resolves.toBeNull();
-    expect(cookieValues.has("admin_session")).toBe(true);
-    await expect(prisma.adminSession.count()).resolves.toBe(0);
   });
 
-  it("rotates the current session and removes expired records", async () => {
+  it("rotates the current session cookie", async () => {
     await auth.createAdminSession();
     const previousToken = cookieValues.get("admin_session")!;
-    await prisma.adminSession.create({
-      data: {
-        tokenHash: "expired-token-hash",
-        expiresAt: new Date(Date.now() - 1_000),
-      },
-    });
 
     await auth.createAdminSession();
 
     expect(cookieValues.get("admin_session")).not.toBe(previousToken);
-    await expect(prisma.adminSession.count()).resolves.toBe(1);
-    await expect(
-      prisma.adminSession.findUnique({
-        where: { tokenHash: auth.hashSessionToken(previousToken) },
-      }),
-    ).resolves.toBeNull();
   });
 
   it("uses a non-secure cookie outside production", async () => {
@@ -203,7 +185,7 @@ describe("admin authentication", () => {
     expect(cookieWrites.at(-1)?.options?.secure).toBe(false);
   });
 
-  it("requires a session and destroys both database and cookie state", async () => {
+  it("requires a session and destroys cookie state", async () => {
     await expect(auth.requireAdmin()).rejects.toThrow("REDIRECT:/admin/login");
 
     await auth.createAdminSession();
@@ -211,7 +193,6 @@ describe("admin authentication", () => {
     await auth.destroyAdminSession();
 
     expect(cookieValues.has("admin_session")).toBe(false);
-    await expect(prisma.adminSession.count()).resolves.toBe(0);
   });
 });
 
@@ -220,7 +201,7 @@ describe("admin schemas", () => {
     expect(schemas.loginSchema.safeParse({ username: "admin", password: "secret" }).success).toBe(true);
     expect(
       schemas.categorySchema.safeParse({
-        name: "AI 写作",
+        name: "AI Writing",
         slug: "writing",
         icon: "PenLine",
         sortOrder: "10",
@@ -233,10 +214,10 @@ describe("admin schemas", () => {
         name: "ChatGPT",
         slug: "chatgpt",
         logoUrl: "",
-        summary: "摘要",
-        description: "说明",
+        summary: "Summary",
+        description: "Description",
         websiteUrl: "https://chatgpt.com",
-        tags: "对话, 写作",
+        tags: "chat, writing",
         sortOrder: "10",
         isActive: "on",
         isFeatured: "on",
@@ -247,8 +228,8 @@ describe("admin schemas", () => {
         categoryId: 1,
         name: "Bad",
         slug: "bad",
-        summary: "摘要",
-        description: "说明",
+        summary: "Summary",
+        description: "Description",
         websiteUrl: "javascript:alert(1)",
       }).success,
     ).toBe(false);
@@ -265,7 +246,7 @@ describe("admin schemas", () => {
 
   it("accepts only HTTP(S) URLs and ordered advertisement dates", () => {
     const valid = {
-      title: "广告",
+      title: "Ad",
       imageUrl: "https://example.com/ad.png",
       targetUrl: "http://example.com",
       placement: "HOME_BANNER",
@@ -300,18 +281,18 @@ describe("admin schemas", () => {
   it("validates site settings with an optional HTTP(S) logo", () => {
     expect(
       schemas.settingsSchema.safeParse({
-        siteName: "AI 导航",
-        siteDescription: "精选 AI 工具",
+        siteName: "AI Navigation",
+        siteDescription: "Curated AI tools",
         logoUrl: "",
-        footerText: "AI 导航",
+        footerText: "AI Navigation",
       }).success,
     ).toBe(true);
     expect(
       schemas.settingsSchema.safeParse({
-        siteName: "AI 导航",
-        siteDescription: "精选 AI 工具",
+        siteName: "AI Navigation",
+        siteDescription: "Curated AI tools",
         logoUrl: "ftp://example.com/logo.png",
-        footerText: "AI 导航",
+        footerText: "AI Navigation",
       }).success,
     ).toBe(false);
   });
@@ -324,9 +305,9 @@ describe("admin actions", () => {
     wrong.set("username", "admin");
     wrong.set("password", "wrong");
 
-    expect(missing).toEqual({ error: "账号或密码错误" });
+    expect(missing).toEqual({ error: "Invalid username or password." });
     await expect(actions.loginAction({}, wrong)).resolves.toEqual({
-      error: "账号或密码错误",
+      error: "Invalid username or password.",
     });
   });
 
@@ -338,7 +319,7 @@ describe("admin actions", () => {
     await expect(actions.loginAction({}, formData)).rejects.toThrow(
       "REDIRECT:/admin",
     );
-    await expect(prisma.adminSession.count()).resolves.toBe(1);
+    expect(cookieValues.has("admin_session")).toBe(true);
   });
 
   it("destroys the session and redirects on logout", async () => {
@@ -346,6 +327,18 @@ describe("admin actions", () => {
     await expect(actions.logoutAction()).rejects.toThrow(
       "REDIRECT:/admin/login",
     );
-    await expect(prisma.adminSession.count()).resolves.toBe(0);
+    expect(cookieValues.has("admin_session")).toBe(false);
+  });
+
+  it("returns a clear error when admin auth is not configured", async () => {
+    vi.stubEnv("ADMIN_USERNAME", "");
+
+    const formData = new FormData();
+    formData.set("username", "admin");
+    formData.set("password", "secret");
+
+    await expect(actions.loginAction({}, formData)).resolves.toEqual({
+      error: "Admin login is not configured yet.",
+    });
   });
 });

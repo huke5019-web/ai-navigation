@@ -20,30 +20,30 @@ describe("admin login form", () => {
   it("renders accessible credentials fields and submit control", () => {
     render(<LoginForm />);
 
-    expect(screen.getByLabelText("管理员账号")).toHaveAttribute(
+    expect(screen.getByLabelText("Admin username")).toHaveAttribute(
       "autocomplete",
       "username",
     );
-    expect(screen.getByLabelText("密码")).toHaveAttribute(
+    expect(screen.getByLabelText("Password")).toHaveAttribute(
       "autocomplete",
       "current-password",
     );
-    expect(screen.getByRole("button", { name: "登录" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Sign in" })).toBeEnabled();
   });
 
   it("announces a login error", async () => {
-    loginActionMock.mockResolvedValue({ error: "账号或密码错误" });
+    loginActionMock.mockResolvedValue({ error: "Invalid username or password." });
     render(<LoginForm />);
 
-    fireEvent.change(screen.getByLabelText("管理员账号"), {
+    fireEvent.change(screen.getByLabelText("Admin username"), {
       target: { value: "admin" },
     });
-    fireEvent.change(screen.getByLabelText("密码"), {
+    fireEvent.change(screen.getByLabelText("Password"), {
       target: { value: "wrong" },
     });
-    fireEvent.submit(screen.getByRole("button", { name: "登录" }).closest("form")!);
+    fireEvent.submit(screen.getByRole("button", { name: "Sign in" }).closest("form")!);
 
-    expect(await screen.findByText("账号或密码错误")).toHaveAttribute(
+    expect(await screen.findByText("Invalid username or password.")).toHaveAttribute(
       "aria-live",
       "polite",
     );
@@ -53,12 +53,12 @@ describe("admin login form", () => {
     loginActionMock.mockImplementation(() => new Promise(() => undefined));
     render(<LoginForm />);
 
-    fireEvent.submit(screen.getByRole("button", { name: "登录" }).closest("form")!);
+    fireEvent.submit(screen.getByRole("button", { name: "Sign in" }).closest("form")!);
 
     await waitFor(() => {
-      expect(screen.getByLabelText("管理员账号")).toBeDisabled();
-      expect(screen.getByLabelText("密码")).toBeDisabled();
-      expect(screen.getByRole("button", { name: "正在登录..." })).toBeDisabled();
+      expect(screen.getByLabelText("Admin username")).toBeDisabled();
+      expect(screen.getByLabelText("Password")).toBeDisabled();
+      expect(screen.getByRole("button", { name: "Signing in..." })).toBeDisabled();
     });
   });
 });

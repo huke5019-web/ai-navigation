@@ -1,7 +1,8 @@
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 
 import { createToolForm, deleteToolForm, updateToolForm } from "@/app/admin/actions";
 import { prisma } from "@/lib/prisma";
+import { getActiveCategories, getTools } from "@/lib/queries";
 
 type ToolRow = Prisma.ToolGetPayload<{
   include: { category: true; tags: { include: { tag: true } } };
@@ -99,13 +100,30 @@ function Fields({
 }
 
 export default async function Page() {
-  const [categories, tools] = await Promise.all([
-    prisma.category.findMany({ orderBy: { sortOrder: "asc" } }),
-    prisma.tool.findMany({
-      include: { category: true, tags: { include: { tag: true } } },
-      orderBy: { sortOrder: "asc" },
-    }),
-  ]);
+  let categories: { id: number; name: string }[] = [];
+  let tools: ToolRow[] = [];
+
+  try {
+    [categories, tools] = await Promise.all([
+      prisma.category.findMany({ orderBy: { sortOrder: "asc" } }),
+      prisma.tool.findMany({
+        include: { category: true, tags: { include: { tag: true } } },
+        orderBy: { sortOrder: "asc" },
+      }),
+    ]);
+  } catch (error) {
+    if (
+      !(error instanceof Prisma.PrismaClientKnownRequestError) ||
+      !["P2021", "P2022"].includes(error.code)
+    ) {
+      throw error;
+    }
+
+    [categories, tools] = await Promise.all([
+      getActiveCategories(),
+      getTools(),
+    ]);
+  }
 
   return (
     <>
