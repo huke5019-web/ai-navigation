@@ -3,6 +3,7 @@ import type { ClickEvent, ClickLinkType } from "@prisma/client";
 
 import { getAdminSession } from "@/lib/auth";
 import { buildSponsorOutboundHref, buildToolOutboundHref } from "@/lib/click-paths";
+import { recordStoredAnalyticsEvent } from "@/lib/internal-analytics";
 import { hasDatabaseUrl, prisma } from "@/lib/prisma";
 import { getToolBySlug } from "@/lib/queries";
 import { getSponsorById } from "@/lib/sponsors";
@@ -103,6 +104,17 @@ export async function recordToolClick(slug: string) {
   }
 
   if (!(await shouldSkipTracking())) {
+    await recordStoredAnalyticsEvent({
+      eventName: "outbound_tool_click",
+      params: {
+        tool_slug: resolved.tool.slug,
+        tool_name: resolved.tool.name,
+        category: resolved.tool.category.slug,
+        link_type: resolved.linkType.toLowerCase(),
+        target_url: resolved.targetUrl,
+      },
+    });
+
     try {
       await prisma.clickEvent.create({
         data: {
@@ -131,6 +143,18 @@ export async function recordSponsorClick(id: string) {
   }
 
   if (!(await shouldSkipTracking())) {
+    await recordStoredAnalyticsEvent({
+      eventName: "outbound_sponsor_click",
+      params: {
+        sponsor_id: resolved.sponsor.id,
+        sponsor_title: resolved.sponsor.title,
+        sponsor_position: resolved.sponsor.position,
+        sponsor_category: resolved.sponsor.category ?? "all",
+        link_type: resolved.linkType.toLowerCase(),
+        target_url: resolved.targetUrl,
+      },
+    });
+
     try {
       await prisma.clickEvent.create({
         data: {

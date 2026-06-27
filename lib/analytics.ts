@@ -11,21 +11,52 @@ declare global {
 
 type EventParams = Record<string, string | number | boolean | undefined>;
 
-export function pageView(url: string) {
-  if (!siteConfig.gaId || typeof window === "undefined" || !window.gtag) {
+function sendInternalAnalytics(name: string, params: EventParams = {}) {
+  if (typeof window === "undefined") {
     return;
   }
 
-  window.gtag("config", siteConfig.gaId, {
-    page_location: url,
-    page_path: new URL(url).pathname,
+  const payload = JSON.stringify({
+    eventName: name,
+    params,
+  });
+
+  if (typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
+    const blob = new Blob([payload], { type: "application/json" });
+    navigator.sendBeacon("/api/analytics/track", blob);
+    return;
+  }
+
+  void fetch("/api/analytics/track", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: payload,
+    keepalive: true,
   });
 }
 
-export function trackEvent(name: string, params: EventParams = {}) {
-  if (!siteConfig.gaId || typeof window === "undefined" || !window.gtag) {
-    return;
-  }
+export function pageView(url: string) {
+  const pagePath = new URL(url).pathname;
 
-  window.gtag("event", name, params);
+  sendInternalAnalytics("page_view", {
+    page_location: url,
+    page_path: pagePath,
+  });
+
+  if (siteConfig.gaId && typeof window !== "undefined" && window.gtag) {
+    window.gtag("config", siteConfig.gaId, {
+      page_location: url,
+      page_path: pagePath,
+    });
+  }
+}
+
+export function trackEvent(name: string, params: EventParams = {}) {
+  sendInternalAnalytics(name, params);
+
+  if (siteConfig.gaId && typeof window !== "undefined" && window.gtag) {
+    window.gtag("event", name, params);
+  }
 }

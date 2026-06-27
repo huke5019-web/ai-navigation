@@ -74,6 +74,10 @@ DATABASE_URL="file:./data/ai-navigation.db"
 ADMIN_USERNAME="admin"
 ADMIN_PASSWORD_HASH="$2b$12$replace-with-bcrypt-hash"
 SESSION_SECRET="replace-with-at-least-32-random-characters"
+KV_REST_API_URL=""
+KV_REST_API_TOKEN=""
+UPSTASH_REDIS_REST_URL=""
+UPSTASH_REDIS_REST_TOKEN=""
 
 NEXT_PUBLIC_SITE_URL="https://ai-navigation-ifw5.vercel.app"
 NEXT_PUBLIC_GA_ID=""
@@ -109,6 +113,44 @@ If your Vercel project is already connected to GitHub, pushing to the tracked br
 4. Redeploy the latest commit, or push a new commit to GitHub.
 
 If `NEXT_PUBLIC_SITE_URL` is not set, metadata and sitemap links may point to the fallback URL instead of your real domain.
+
+## Persistent admin analytics on Vercel
+
+The admin analytics page can now store detailed site activity without counting your own logged-in admin usage.
+
+Recommended Vercel setup:
+
+1. In Vercel, open `Storage`.
+2. Create a Redis database through the Marketplace, or connect an existing Upstash Redis instance.
+3. Make sure Vercel injects either:
+   - `KV_REST_API_URL`
+   - `KV_REST_API_TOKEN`
+
+   or the equivalent Upstash variables:
+
+   - `UPSTASH_REDIS_REST_URL`
+   - `UPSTASH_REDIS_REST_TOKEN`
+
+4. Redeploy the project.
+
+What gets tracked internally:
+
+- page views
+- search submissions
+- category clicks
+- tool detail clicks
+- outbound tool clicks
+- outbound sponsor clicks
+
+Admin traffic handling:
+
+- if you are logged in at `/admin`, your own browser actions are skipped automatically
+- this keeps your dashboard cleaner while you test links and layouts
+
+Without Redis storage:
+
+- the detailed event stream will not persist
+- the dashboard falls back to outbound click history only when database-backed click rows exist
 
 ## Google AdSense setup
 
